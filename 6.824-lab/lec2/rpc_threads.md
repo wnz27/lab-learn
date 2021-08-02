@@ -1,107 +1,109 @@
-6.824 2021 Lecture 2: Infrastructure: RPC and threads
+# 6.824 2021 Lecture 2: Infrastructure: RPC and threads
 
 Today:
 Threads and RPC in Go, with an eye towards the labs
 
-Why Go?
-good support for threads
-convenient RPC
-type safe
-garbage-collected (no use after freeing problems)
-threads + GC is particularly attractive!
-relatively simple
-After the tutorial, use https://golang.org/doc/effective_go.html
+> Why Go?
+- good support for threads
+- convenient RPC
+- type safe
+- garbage-collected (no use after freeing problems)
+- threads + GC is particularly attractive!
+- relatively simple
+- After the tutorial, use [effective_go](https://golang.org/doc/effective_go.html)
 
-Threads
-a useful structuring tool, but can be tricky
-Go calls them goroutines; everyone else calls them threads
+> Threads
+- a useful structuring tool, but can be tricky
+- Go calls them goroutines; everyone else calls them threads
 
-Thread = "thread of execution"
-threads allow one program to do many things at once
-each thread executes serially, just like an ordinary non-threaded program
-the threads share memory
-each thread includes some per-thread state:
-program counter, registers, stack
+> Thread = "thread of execution"
+- threads allow one program to do many things at once
+- each thread executes serially, just like an ordinary non-threaded program
+- the threads share memory
+- each thread includes some per-thread state:
+  program counter, registers, stack
 
-Why threads?
-They express concurrency, which you need in distributed systems
-I/O concurrency
-Client sends requests to many servers in parallel and waits for replies.
+> Why threads?
+- They express concurrency, which you need in distributed systems
+- I/O concurrency
+- Client sends requests to many servers in parallel and waits for replies.
 Server processes multiple client requests; each request may block.
 While waiting for the disk to read data for client X,
 process a request from client Y.
-Multicore performance
+- Multicore performance
 Execute code in parallel on several cores.
 Convenience
 In background, once per second, check whether each worker is still alive.
 
-Is there an alternative to threads?
-Yes: write code that explicitly interleaves activities, in a single thread.
+> Is there an alternative to threads?
+- Yes: write code that explicitly interleaves activities, in a single thread.
 Usually called "event-driven."
-Keep a table of state about each activity, e.g. each client request.
-One "event" loop that:
+- Keep a table of state about each activity, e.g. each client request.
+- One "event" loop that:
 checks for new input for each activity (e.g. arrival of reply from server),
 does the next step for each activity,
 updates state.
-Event-driven gets you I/O concurrency,
+- Event-driven gets you I/O concurrency,
 and eliminates thread costs (which can be substantial),
 but doesn't get multi-core speedup,
 and is painful to program.
 
-Threading challenges:
-shared data
+> Threading challenges:
+- shared data
 e.g. what if two threads do n = n + 1 at the same time?
 or one thread reads while another increments?
 this is a "race" -- and is usually a bug
 -> use locks (Go's sync.Mutex)
 -> or avoid sharing mutable data
-coordination between threads
+- coordination between threads
 e.g. one thread is producing data, another thread is consuming it
 how can the consumer wait (and release the CPU)?
 how can the producer wake up the consumer?
 -> use Go channels or sync.Cond or WaitGroup
-deadlock
+- deadlock
 cycles via locks and/or communication (e.g. RPC or Go channels)
 
 Let's look at the tutorial's web crawler as a threading example.
 
-What is a web crawler?
-goal is to fetch all web pages, e.g. to feed to an indexer
-web pages and links form a graph
-multiple links to some pages
-graph has cycles
+> What is a web crawler?
+- goal is to fetch all web pages, e.g. to feed to an indexer
+- web pages and links form a graph
+- multiple links to some pages
+- graph has cycles
 
-Crawler challenges
-Exploit I/O concurrency
+> Crawler challenges
+- Exploit I/O concurrency
 Network latency is more limiting than network capacity
-Fetch many URLs at the same time
+- Fetch many URLs at the same time
 To increase URLs fetched per second
 => Need threads for concurrency
 Fetch each URL only *once*
 avoid wasting network bandwidth
 be nice to remote servers
 => Need to remember which URLs visited
-Know when finished
+- Know when finished
 
-We'll look at two styles of solution [crawler.go on schedule page]
+We'll look at two styles of solution [crawler.go](crawler/crawler.go)
 
-Serial crawler:
-performs depth-first exploration via recursive Serial calls
-the "fetched" map avoids repeats, breaks cycles
+> Serial crawler:
+- performs depth-first exploration via recursive Serial calls
+- the "fetched" map avoids repeats, breaks cycles
 a single map, passed by reference, caller sees callee's updates
-but: fetches only one page at a time
+- but: fetches only one page at a time
 can we just put a "go" in front of the Serial() call?
-let's try it... what happened?
-
-ConcurrentMutex crawler:
-Creates a thread for each page fetch
+let's try it... what happened? 
+  
+# Todo
+  
+> ConcurrentMutex crawler:
+- Creates a thread for each page fetch
 Many concurrent fetches, higher fetch rate
-the "go func" creates a goroutine and starts it running
+- the "go func" creates a goroutine and starts it running
 func... is an "anonymous function"
 The threads share the "fetched" map
 So only one thread will fetch any given page
-Why the Mutex (Lock() and Unlock())?
-One reason:
+- Why the Mutex (Lock() and Unlock())?
+  - One reason:
 Two different web pages contain links to the same URL
 Two threads simultaneouly fetch those two pages
 T1 reads fetched[url], T2 reads fetched[url]
@@ -109,22 +111,22 @@ Both see that url hasn't been fetched (already == false)
 Both fetch, which is wrong
 The lock causes the check and update to be atomic
 So only one thread sees already==false
-Another reason:
+  - Another reason:
 Internally, map is a complex data structure (tree? expandable hash?)
 Concurrent update/update may wreck internal invariants
 Concurrent update/read may crash the read
-What if I comment out Lock() / Unlock()?
+  - What if I comment out Lock() / Unlock()?
 go run crawler.go
 Why does it work?
 go run -race crawler.go
 Detects races even when output is correct!
-How does the ConcurrentMutex crawler decide it is done?
+- How does the ConcurrentMutex crawler decide it is done?
 sync.WaitGroup
 Wait() waits for all Add()s to be balanced by Done()s
 i.e. waits for all child threads to finish
 [diagram: tree of goroutines, overlaid on cyclic URL graph]
 there's a WaitGroup per node in the tree
-How many concurrent threads might this crawler create?
+- How many concurrent threads might this crawler create?
 
 ConcurrentChannel crawler
 a Go channel:
