@@ -14,6 +14,7 @@
     - [Lecture 3: GFS](lec3/gfs.md)
     - [google file system](lec3/gfs.pdf)
 - lec4 
-    - []
+    - [Lecture 4: Primary/Backup Replication](lec4/primary-backup-replication.md)
+    - [Fault-Tolerant Virtual Machines (2010) ](lec4/vm-ft.pdf)
 - lec5
 
