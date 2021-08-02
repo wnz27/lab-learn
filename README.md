@@ -6,6 +6,6 @@ famous lab lecture learn
 - [IPFS-learn]
 - Other-Papers
     - [raft-原文-翻译](https://github.com/maemual/raft-zh_cn)
-    - [raft-翻译-【clone 自上方github 仓库】](relation-papers/raft)
+    - [raft-翻译-【clone 自上方github 仓库】](relation-papers/raft/raft-zh_cn.md)
     - [raft-pdf](relation-papers/raft/raft.pdf)
     
