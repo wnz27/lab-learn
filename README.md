@@ -2,7 +2,9 @@
 famous lab lecture learn
 
 - [MIT6.824](6.824-lab/0catagory.md)
+  - [官方链接-2021](http://nil.csail.mit.edu/6.824/2021/schedule.html)
 - [CMU15-445](15-445-lab/0catagory.md)
+  - [官方链接-2021](https://15445.courses.cs.cmu.edu/fall2020/schedule.html)
 - [IPFS-learn]
 - Other-Papers
     - [raft-原文-翻译](https://github.com/maemual/raft-zh_cn)
