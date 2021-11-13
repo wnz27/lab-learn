@@ -93,51 +93,55 @@ a single map, passed by reference, caller sees callee's updates
 can we just put a "go" in front of the Serial() call?
 let's try it... what happened? 
   
-# Todo
   
-> ConcurrentMutex crawler:
-- Creates a thread for each page fetch
-Many concurrent fetches, higher fetch rate
-- the "go func" creates a goroutine and starts it running
-func... is an "anonymous function"
-The threads share the "fetched" map
-So only one thread will fetch any given page
+**ConcurrentMutex crawler:**
+- Creates a thread for each page fetch Many concurrent fetches, higher fetch rate
+the "go func" creates a goroutine and starts it running func... is an "anonymous function"
+The threads share the "fetched" map So only one thread will fetch any given page
 - Why the Mutex (Lock() and Unlock())?
   - One reason:
-Two different web pages contain links to the same URL
-Two threads simultaneouly fetch those two pages
-T1 reads fetched[url], T2 reads fetched[url]
-Both see that url hasn't been fetched (already == false)
-Both fetch, which is wrong
-The lock causes the check and update to be atomic
-So only one thread sees already==false
+    > Two different web pages contain links to the same URL
+    Two threads simultaneouly fetch those two pages
+    T1 reads fetched[url], T2 reads fetched[url]
+    Both see that url hasn't been fetched (already == false)
+    Both fetch, which is wrong
+    The lock causes the check and update to be atomic
+    So only one thread sees already==false
   - Another reason:
-Internally, map is a complex data structure (tree? expandable hash?)
-Concurrent update/update may wreck internal invariants
-Concurrent update/read may crash the read
+    > Internally, map is a complex data structure (tree? expandable hash?)
+    Concurrent update/update may wreck internal invariants
+    Concurrent update/read may crash the read
   - What if I comment out Lock() / Unlock()?
-go run crawler.go
-Why does it work?
-go run -race crawler.go
-Detects races even when output is correct!
+    > go run crawler.go
+    > Why does it work?
+    `go run -race crawler.go`
+    Detects races even when output is correct!
 - How does the ConcurrentMutex crawler decide it is done?
-sync.WaitGroup
-Wait() waits for all Add()s to be balanced by Done()s
-i.e. waits for all child threads to finish
-[diagram: tree of goroutines, overlaid on cyclic URL graph]
-there's a WaitGroup per node in the tree
+    > sync.WaitGroup
+    Wait() waits for all Add()s to be balanced by Done()s
+    i.e. waits for all child threads to finish
+    [diagram: tree of goroutines, overlai（叠加） on cyclic URL graph]
+    there's a WaitGroup per node in the tree
 - How many concurrent threads might this crawler create?
 
-ConcurrentChannel crawler
+**ConcurrentChannel crawler**
+
 a Go channel:
+
 a channel is an object
+```go
 ch := make(chan int)
+```
 a channel lets one thread send an object to another thread
+```go
 ch <- x
-the sender waits until some goroutine receives
+```
+```go
+// the sender waits until some goroutine receives
 y := <- ch
 for y := range ch
-a receiver waits until some goroutine sends
+// a receiver waits until some goroutine sends
+```
 channels both communicate and synchronize
 several threads can send and receive on a channel
 channels are cheap
