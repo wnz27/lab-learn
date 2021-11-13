@@ -1,7 +1,8 @@
 # MIT 6.824
 [2021-home page](http://nil.csail.mit.edu/6.824/2021/schedule.html)
 - notation
-    - the paper:《Bolosky》Note: the student's guide was written several years ago, and part 2D in particular has since changed. Make sure you understand why a particular implementation strategy makes sense before blindly following it!
+    - the paper:《Bolosky》Note: the student's guide was written several years ago, and part 2D in particular has since changed. 
+      Make sure you understand why a particular implementation strategy makes sense before blindly following it!
 - other-read
     - [students-guide-to-raft](https://thesquareplanet.com/blog/students-guide-to-raft/)
     - [Raft Locking Advice](http://nil.csail.mit.edu/6.824/2021/labs/raft-locking.txt)
