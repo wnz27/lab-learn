@@ -142,31 +142,35 @@ y := <- ch
 for y := range ch
 // a receiver waits until some goroutine sends
 ```
-channels both communicate and synchronize
-several threads can send and receive on a channel
+**channels both communicate and synchronize several threads can send and receive on a channel.**
+
 channels are cheap
 remember: sender blocks until the receiver receives!
 "synchronous"
 watch out for deadlock
+
 ConcurrentChannel master()
-master() creates a worker goroutine to fetch each page
-worker() sends slice of page's URLs on a channel
-multiple workers send on the single channel
-master() reads URL slices from the channel
-At what line does the master wait?
+
+- master() creates a worker goroutine to fetch each page
+- worker() sends slice of page's URLs on a channel
+  - multiple workers send on the single channel
+- master() reads URL slices from the channel
+
+At what line does the master wait ?
 Does the master use CPU time while it waits?
 No need to lock the fetched map, because it isn't shared!
+
 How does the master know it is done?
-Keeps count of workers in n.
-Each worker sends exactly one item on channel.
+  - Keeps count of workers in n.
+  - Each worker sends exactly one item on channel.
 
 Why is it not a race that multiple threads use the same channel?
 
 Is there a race when worker thread writes into a slice of URLs,
 and master thread reads that slice, without locking?
 * worker only writes slice *before* sending
-* master only reads slice *after* receiving
-  So they can't use the slice at the same time.
+* master only reads slice *after* receiving 
+> So they can't use the slice at the same time.
 
 When to use sharing and locks, versus channels?
 Most problems can be solved in either style
