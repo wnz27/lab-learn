@@ -10,6 +10,7 @@
 - lec1
     - [Lecture 1: Introduction](lec1/intorduction.md)
     - [mapreduce-paper](lec1/mapreduce-osdi04.pdf)
+- [6.824 Lab 1: MapReduce](http://nil.csail.mit.edu/6.824/2021/labs/lab-mr.html)
 - lec2
     - [Lecture 2: Infrastructure: RPC and threads](lec2/rpc_threads.md)
     - [online go tutorials](https://tour.golang.org/welcome/1)
@@ -24,4 +25,8 @@
     - [Lecture 4: Primary/Backup Replication](lec4/primary-backup-replication.md)
     - [Fault-Tolerant Virtual Machines (2010) ](lec4/vm-ft.pdf)
 - lec5
+    - [raft1](./lec5/Raft1.md)
+- [6.824 Lab 2: Raft](http://nil.csail.mit.edu/6.824/2021/labs/lab-raft.html)
+- [6.824 Project](http://nil.csail.mit.edu/6.824/2021/project.html)
+-[6.824 Lab 3: Fault-tolerant Key/Value Service](http://nil.csail.mit.edu/6.824/2021/labs/lab-kvraft.html)
 
